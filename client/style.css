@@ -1,0 +1,17 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+.box {
+	border: 1px solid #aaa;
+	padding: 10px;
+}
+
+.box h2, .box h3 {
+	text-align: center;
+}
+
+.margin-top {
+	margin-top: 32px;
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>VIA: AJAX, jQuery, Websocket</title>
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			<h1>AJAX, jQuery, Websocket</h1>
+			<h3>Dnes je: <span id="datefield"></span></h3>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="box">
+				<h2>XMLHttpRequest ajax example</h2>
+				<div class="text-center">
+				<button id="update-date-button" class="btn btn-primary">Update Date</button>
+				<button id="update-time-button" class="btn btn-warning">Update Time</button>
+				<button id="update-datetime-button" class="btn btn-success">Update Date and Time</button>
+				</div>
+				<h3><span id="xhttp-date">dd.MM.yyyy</span> <span id="xhttp-time">HH:mm:ss</span></h3>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="box">
+				<h2>jQuery ajax example</h2>
+				<div class="text-center">
+				<button id="update-date-button-j" class="btn btn-primary">Update Date</button>
+				<button id="update-time-button-j" class="btn btn-warning">Update Time</button>
+				<button id="update-datetime-button-j" class="btn btn-success">Update Date and Time</button>
+				</div>
+				<h3><span id="jquery-date">dd.MM.yyyy</span> <span id="jquery-time">HH:mm:ss</span></h3>
+			</div>
+		</div>
+	</div>
+	<div class="row margin-top">
+		<div class="col-md-6">
+		<h2>Position:</h2>
+		<form class="">
+			<div class="form-group">
+			<label>Latitude:</label>
+			<input id="lat-input" type="text" name="lon" class="form-control" placeholder="latitude" value="50.099333599999994">
+			</div><div class="form-group">
+			<label>Longitude:</label>
+			<input id="lon-input" type="text" name="lat" class="form-control" placeholder="longitude" value="14.390398600000001">
+			</div><div class="form-group">
+			<input id="map-submit" type="button" name="maps-submit" class="btn btn-success" value="Get data"></div>
+			
+		</form>
+		</div>
+		<div class="col-md-6">
+		<div id="map" style="width:100%;height:350px;"></div>
+		</div>
+	</div>
+</div>
+<script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+  <!-- BOOTSTRAP + jQUERY -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="xmlhttpexample.js"></script>
+<script type="text/javascript" src="jqueryexample.js"></script>
+<script type="text/javascript" src="websocket.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAFivtrwyU8JW2iogVObphHju5PJIzV-U&libraries=places"></script>
+
+<script type="text/javascript">
+var longitude;
+var latitude;
+
+navigator.geolocation.watchPosition(geo_success, geo_error, geo_options);
+
+function geo_success(position) {
+  longitude = position.coords.longitude;
+  latitude = position.coords.latitude;
+  $('#lat-input').val(latitude);
+  $('#lon-input').val(longitude);
+}
+
+function geo_error() {
+  console.log("Sorry, no position available.");
+}
+
+var geo_options = {
+  enableHighAccuracy: true, 
+  maximumAge        : 30000, 
+  timeout           : 27000
+};
+
+$('#map-submit').click(function() {
+	longitude = parseFloat($('#lon-input').val());
+	latitude = parseFloat($('#lat-input').val());
+	initialize();
+})
+
+var map;
+var service;
+var infowindow;
+
+function initialize() {
+  var myPosition = new google.maps.LatLng(latitude,longitude);
+  infowindow = new google.maps.InfoWindow();
+  map = new google.maps.Map(document.getElementById('map'), {
+      center: myPosition,
+      zoom: 15
+    });
+
+  var request = {
+    location: myPosition,
+    radius: '500',
+    types: ['bar', 'restaurant']
+  };
+
+  service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, callback);
+}
+
+function callback(results, status) {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      var place = results[i];
+      createMarker(results[i]);
+    }
+  }
+}
+
+function createMarker(place) {
+	var placeLoc = place.geometry.location;
+	var marker = new google.maps.Marker({
+	  map: map,
+	  position: place.geometry.location
+	});
+
+	google.maps.event.addListener(marker, 'click', function() {
+	  infowindow.setContent("<strong>"+place.name+"</strong><br>"+place.vicinity)
+	  infowindow.open(map, this);
+	});
+}
+
+
+</script>
+</body>
+</html>
